@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teamkraft Bewertung</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Language Selection Screen -->
+    <div id="language-screen" class="screen active">
+        <div class="language-container">
+            <h1 class="language-title">Sprache wählen / Choose Language</h1>
+            <div class="language-buttons">
+                <button class="language-btn" data-lang="de">
+                    <span class="flag">🇩🇪</span>
+                    <span class="lang-text">Deutsch</span>
+                </button>
+                <button class="language-btn" data-lang="en">
+                    <span class="flag">🇬🇧</span>
+                    <span class="lang-text">English</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voting Screen -->
+    <div id="voting-screen" class="screen">
+        <div class="voting-container">
+            <header class="header">
+                <h1 class="title" data-de="Teamkraft" data-en="Teampower">Teamkraft</h1>
+                <div class="formula-image">
+                    <img id="formula-img" src="" alt="Formula">
+                </div>
+            </header>
+
+            <main class="voting-main">
+                <p class="instruction" data-de="Wie hat sich die Teamkraft verändert?" data-en="How has the teampower changed?">
+                    Wie hat sich die Teamkraft verändert?
+                </p>
+                
+                <div class="voting-buttons">
+                    <button class="vote-btn vote-down" data-value="-1" disabled>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M12 19V5M12 19l-7-7M12 19l7-7"/>
+                        </svg>
+                        <span class="vote-label" data-de="Gesunken" data-en="Decreased">Gesunken</span>
+                    </button>
+                    
+                    <button class="vote-btn vote-neutral" data-value="0" disabled>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M5 12h14"/>
+                        </svg>
+                        <span class="vote-label" data-de="Gleich" data-en="Same">Gleich</span>
+                    </button>
+                    
+                    <button class="vote-btn vote-up-light" data-value="1" disabled>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M12 5v14M12 5l-7 7M12 5l7 7"/>
+                        </svg>
+                        <span class="vote-label" data-de="Leicht gestiegen" data-en="Slightly increased">Leicht gestiegen</span>
+                    </button>
+                    
+                    <button class="vote-btn vote-up-medium" data-value="2" disabled>
+                        <svg class="icon double-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M12 9v14M12 9l-7 7M12 9l7 7"/>
+                            <path d="M12 3v6M12 3l-7 7M12 3l7 7"/>
+                        </svg>
+                        <span class="vote-label" data-de="Mittel gestiegen" data-en="Moderately increased">Mittel gestiegen</span>
+                    </button>
+                    
+                    <button class="vote-btn vote-up-strong" data-value="3" disabled>
+                        <svg class="icon triple-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M12 13v10M12 13l-7 7M12 13l7 7"/>
+                            <path d="M12 7v6M12 7l-7 7M12 7l7 7"/>
+                            <path d="M12 1v6M12 1l-7 7M12 1l7 7"/>
+                        </svg>
+                        <span class="vote-label" data-de="Stark gestiegen" data-en="Strongly increased">Stark gestiegen</span>
+                    </button>
+                </div>
+
+                <div class="vote-count-display">
+                    <span data-de="Stimmen:" data-en="Votes:">Stimmen:</span>
+                    <strong id="total-votes">0</strong>
+                </div>
+            </main>
+
+            <footer class="footer">
+                <button id="end-voting-btn" class="end-btn" disabled>
+                    <span data-de="Zählung beenden" data-en="End voting">Zählung beenden</span>
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="screen">
+        <div class="results-container">
+            <header class="results-header">
+                <h1 class="results-title" data-de="Ergebnis Teamkraft" data-en="Results Teampower">Ergebnis Teamkraft</h1>
+                <div class="formula-image-small">
+                    <img id="formula-img-result" src="" alt="Formula">
+                </div>
+            </header>
+
+            <div class="results-summary">
+                <div class="total-votes-card">
+                    <span class="summary-label" data-de="Gesamtstimmen" data-en="Total votes">Gesamtstimmen</span>
+                    <span class="summary-value" id="result-total">0</span>
+                </div>
+            </div>
+
+            <div class="results-grid">
+                <div class="result-card result-down">
+                    <div class="result-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M12 19V5M12 19l-7-7M12 19l7-7"/>
+                        </svg>
+                    </div>
+                    <div class="result-info">
+                        <h3 class="result-label" data-de="Gesunken" data-en="Decreased">Gesunken</h3>
+                        <div class="result-stats">
+                            <span class="result-count" id="count-down">0</span>
+                            <span class="result-percent" id="percent-down">0%</span>
+                        </div>
+                        <div class="result-bar">
+                            <div class="result-bar-fill" id="bar-down"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card result-neutral">
+                    <div class="result-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M5 12h14"/>
+                        </svg>
+                    </div>
+                    <div class="result-info">
+                        <h3 class="result-label" data-de="Gleich geblieben" data-en="Stayed the same">Gleich geblieben</h3>
+                        <div class="result-stats">
+                            <span class="result-count" id="count-neutral">0</span>
+                            <span class="result-percent" id="percent-neutral">0%</span>
+                        </div>
+                        <div class="result-bar">
+                            <div class="result-bar-fill" id="bar-neutral"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card result-up-light">
+                    <div class="result-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M12 5v14M12 5l-7 7M12 5l7 7"/>
+                        </svg>
+                    </div>
+                    <div class="result-info">
+                        <h3 class="result-label" data-de="Leicht gestiegen" data-en="Slightly increased">Leicht gestiegen</h3>
+                        <div class="result-stats">
+                            <span class="result-count" id="count-up-light">0</span>
+                            <span class="result-percent" id="percent-up-light">0%</span>
+                        </div>
+                        <div class="result-bar">
+                            <div class="result-bar-fill" id="bar-up-light"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card result-up-medium">
+                    <div class="result-icon double-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M12 9v14M12 9l-7 7M12 9l7 7"/>
+                            <path d="M12 3v6M12 3l-7 7M12 3l7 7"/>
+                        </svg>
+                    </div>
+                    <div class="result-info">
+                        <h3 class="result-label" data-de="Mittel gestiegen" data-en="Moderately increased">Mittel gestiegen</h3>
+                        <div class="result-stats">
+                            <span class="result-count" id="count-up-medium">0</span>
+                            <span class="result-percent" id="percent-up-medium">0%</span>
+                        </div>
+                        <div class="result-bar">
+                            <div class="result-bar-fill" id="bar-up-medium"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card result-up-strong">
+                    <div class="result-icon triple-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M12 13v10M12 13l-7 7M12 13l7 7"/>
+                            <path d="M12 7v6M12 7l-7 7M12 7l7 7"/>
+                            <path d="M12 1v6M12 1l-7 7M12 1l7 7"/>
+                        </svg>
+                    </div>
+                    <div class="result-info">
+                        <h3 class="result-label" data-de="Stark gestiegen" data-en="Strongly increased">Stark gestiegen</h3>
+                        <div class="result-stats">
+                            <span class="result-count" id="count-up-strong">0</span>
+                            <span class="result-percent" id="percent-up-strong">0%</span>
+                        </div>
+                        <div class="result-bar">
+                            <div class="result-bar-fill" id="bar-up-strong"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-actions">
+                <button id="new-voting-btn" class="action-btn primary-btn">
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    <span data-de="Neue Abstimmung" data-en="New voting">Neue Abstimmung</span>
+                </button>
+                <button id="print-btn" class="action-btn secondary-btn">
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+                        <path d="M6 14h12v8H6z"/>
+                    </svg>
+                    <span data-de="Drucken" data-en="Print">Drucken</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
