@@ -21,6 +21,7 @@ const endVotingBtn = document.getElementById('end-voting-btn');
 const totalVotesDisplay = document.getElementById('total-votes');
 
 const newVotingBtn = document.getElementById('new-voting-btn');
+const downloadBtn = document.getElementById('download-btn');
 const printBtn = document.getElementById('print-btn');
 
 // Formula Images
@@ -49,6 +50,7 @@ function attachEventListeners() {
 
     // Results screen buttons
     newVotingBtn.addEventListener('click', resetVoting);
+    downloadBtn.addEventListener('click', downloadResults);
     printBtn.addEventListener('click', () => window.print());
 }
 
@@ -233,6 +235,137 @@ function switchScreen(screen) {
     
     // Update language on screen change
     updateLanguage();
+}
+
+// Download Results as Text File
+function downloadResults() {
+    const total = getTotalVotes();
+    
+    if (total === 0) return;
+    
+    // Get current date and time
+    const now = new Date();
+    const dateStr = now.toLocaleDateString(currentLanguage === 'de' ? 'de-DE' : 'en-US');
+    const timeStr = now.toLocaleTimeString(currentLanguage === 'de' ? 'de-DE' : 'en-US');
+    
+    // Translations
+    const translations = {
+        de: {
+            title: 'Ergebnis Teamkraft',
+            subtitle: 'Abstimmungsergebnis',
+            date: 'Datum',
+            time: 'Uhrzeit',
+            totalVotes: 'Gesamtstimmen',
+            details: 'Detaillierte Ergebnisse',
+            decreased: 'Gesunken',
+            same: 'Gleich geblieben',
+            slightlyIncreased: 'Leicht gestiegen',
+            moderatelyIncreased: 'Mittel gestiegen',
+            stronglyIncreased: 'Stark gestiegen',
+            votes: 'Stimmen',
+            percentage: 'Prozent'
+        },
+        en: {
+            title: 'Results Teampower',
+            subtitle: 'Voting Results',
+            date: 'Date',
+            time: 'Time',
+            totalVotes: 'Total Votes',
+            details: 'Detailed Results',
+            decreased: 'Decreased',
+            same: 'Stayed the same',
+            slightlyIncreased: 'Slightly increased',
+            moderatelyIncreased: 'Moderately increased',
+            stronglyIncreased: 'Strongly increased',
+            votes: 'Votes',
+            percentage: 'Percentage'
+        }
+    };
+    
+    const t = translations[currentLanguage];
+    
+    // Calculate percentages
+    const results = {
+        '-1': {
+            count: votes['-1'],
+            percent: ((votes['-1'] / total) * 100).toFixed(1)
+        },
+        '0': {
+            count: votes['0'],
+            percent: ((votes['0'] / total) * 100).toFixed(1)
+        },
+        '1': {
+            count: votes['1'],
+            percent: ((votes['1'] / total) * 100).toFixed(1)
+        },
+        '2': {
+            count: votes['2'],
+            percent: ((votes['2'] / total) * 100).toFixed(1)
+        },
+        '3': {
+            count: votes['3'],
+            percent: ((votes['3'] / total) * 100).toFixed(1)
+        }
+    };
+    
+    // Create text content
+    let textContent = '';
+    textContent += '='.repeat(60) + '\n';
+    textContent += t.title.toUpperCase() + '\n';
+    textContent += t.subtitle + '\n';
+    textContent += '='.repeat(60) + '\n\n';
+    
+    textContent += `${t.date}: ${dateStr}\n`;
+    textContent += `${t.time}: ${timeStr}\n\n`;
+    
+    textContent += '-'.repeat(60) + '\n';
+    textContent += `${t.totalVotes}: ${total}\n`;
+    textContent += '-'.repeat(60) + '\n\n';
+    
+    textContent += t.details + ':\n';
+    textContent += '='.repeat(60) + '\n\n';
+    
+    textContent += `1. ${t.decreased}\n`;
+    textContent += `   ${t.votes}: ${results['-1'].count}\n`;
+    textContent += `   ${t.percentage}: ${results['-1'].percent}%\n\n`;
+    
+    textContent += `2. ${t.same}\n`;
+    textContent += `   ${t.votes}: ${results['0'].count}\n`;
+    textContent += `   ${t.percentage}: ${results['0'].percent}%\n\n`;
+    
+    textContent += `3. ${t.slightlyIncreased}\n`;
+    textContent += `   ${t.votes}: ${results['1'].count}\n`;
+    textContent += `   ${t.percentage}: ${results['1'].percent}%\n\n`;
+    
+    textContent += `4. ${t.moderatelyIncreased}\n`;
+    textContent += `   ${t.votes}: ${results['2'].count}\n`;
+    textContent += `   ${t.percentage}: ${results['2'].percent}%\n\n`;
+    
+    textContent += `5. ${t.stronglyIncreased}\n`;
+    textContent += `   ${t.votes}: ${results['3'].count}\n`;
+    textContent += `   ${t.percentage}: ${results['3'].percent}%\n\n`;
+    
+    textContent += '='.repeat(60) + '\n';
+    textContent += currentLanguage === 'de' 
+        ? 'Generiert mit Teamkraft Bewertungs-App\n'
+        : 'Generated with Teampower Voting App\n';
+    textContent += '='.repeat(60) + '\n';
+    
+    // Create blob and download
+    const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    const filename = currentLanguage === 'de' 
+        ? `Teamkraft_Ergebnis_${dateStr.replace(/\./g, '-')}.txt`
+        : `Teampower_Results_${dateStr.replace(/\//g, '-')}.txt`;
+    
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }
 
 // Initialize app
