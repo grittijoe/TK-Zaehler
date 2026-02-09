@@ -1,5 +1,11 @@
 // Application State
 let currentLanguage = 'de';
+let setupData = {
+    language: '',
+    industry: '',
+    country: '',
+    product: ''
+};
 let votes = {
     '-1': 0,  // decreased
     '0': 0,   // same
@@ -9,16 +15,31 @@ let votes = {
 };
 let canVote = true;
 const VOTE_DELAY = 700; // 0.7 seconds in milliseconds
+const CORRECT_PIN = '313';
 
 // DOM Elements
 const languageScreen = document.getElementById('language-screen');
 const votingScreen = document.getElementById('voting-screen');
 const resultsScreen = document.getElementById('results-screen');
+const pinModal = document.getElementById('pin-modal');
 
+const setupForm = document.getElementById('setup-form');
 const languageBtns = document.querySelectorAll('.language-btn');
+const industrySelect = document.getElementById('industry-select');
+const countrySelect = document.getElementById('country-select');
+const productSelect = document.getElementById('product-select');
+const customProductSection = document.getElementById('custom-product-section');
+const customProductInput = document.getElementById('custom-product');
+const startBtn = document.querySelector('.start-btn');
+
 const voteButtons = document.querySelectorAll('.vote-btn');
 const endVotingBtn = document.getElementById('end-voting-btn');
 const totalVotesDisplay = document.getElementById('total-votes');
+
+const pinInput = document.getElementById('pin-input');
+const pinError = document.getElementById('pin-error');
+const pinSubmitBtn = document.getElementById('pin-submit-btn');
+const pinCancelBtn = document.getElementById('pin-cancel-btn');
 
 const newVotingBtn = document.getElementById('new-voting-btn');
 const downloadBtn = document.getElementById('download-btn');
@@ -37,16 +58,44 @@ function init() {
 function attachEventListeners() {
     // Language selection
     languageBtns.forEach(btn => {
-        btn.addEventListener('click', () => selectLanguage(btn.dataset.lang));
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            selectLanguageButton(btn.dataset.lang);
+        });
     });
+
+    // Product selection change
+    productSelect.addEventListener('change', handleProductChange);
+
+    // Setup form submission
+    setupForm.addEventListener('submit', handleSetupSubmit);
+
+    // Form validation on change
+    industrySelect.addEventListener('change', validateSetupForm);
+    countrySelect.addEventListener('change', validateSetupForm);
 
     // Voting buttons
     voteButtons.forEach(btn => {
         btn.addEventListener('click', () => handleVote(btn.dataset.value));
     });
 
-    // End voting button
-    endVotingBtn.addEventListener('click', showResults);
+    // End voting button - show PIN modal
+    endVotingBtn.addEventListener('click', showPinModal);
+
+    // PIN modal
+    pinSubmitBtn.addEventListener('click', checkPin);
+    pinCancelBtn.addEventListener('click', hidePinModal);
+    pinInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') checkPin();
+        // Only allow numbers
+        if (!/[0-9]/.test(e.key)) e.preventDefault();
+    });
+    pinInput.addEventListener('input', (e) => {
+        // Limit to 3 digits
+        if (e.target.value.length > 3) {
+            e.target.value = e.target.value.slice(0, 3);
+        }
+    });
 
     // Results screen buttons
     newVotingBtn.addEventListener('click', resetVoting);
@@ -55,20 +104,74 @@ function attachEventListeners() {
 }
 
 // Language Selection
-function selectLanguage(lang) {
+function selectLanguageButton(lang) {
     currentLanguage = lang;
+    setupData.language = lang;
+    
+    // Update button states
+    languageBtns.forEach(btn => {
+        if (btn.dataset.lang === lang) {
+            btn.classList.add('selected');
+        } else {
+            btn.classList.remove('selected');
+        }
+    });
+    
+    // Update language immediately
+    updateLanguage();
+    
+    // Validate form
+    validateSetupForm();
+}
+
+// Handle Product Change
+function handleProductChange() {
+    const selectedProduct = productSelect.value;
+    
+    if (selectedProduct === 'custom') {
+        customProductSection.style.display = 'block';
+        customProductInput.required = true;
+        customProductInput.focus();
+    } else {
+        customProductSection.style.display = 'none';
+        customProductInput.required = false;
+    }
+}
+
+// Validate Setup Form
+function validateSetupForm() {
+    const languageSelected = setupData.language !== '';
+    const industrySelected = industrySelect.value !== '';
+    const countrySelected = countrySelect.value !== '';
+    
+    const isValid = languageSelected && industrySelected && countrySelected;
+    startBtn.disabled = !isValid;
+}
+
+// Handle Setup Form Submission
+function handleSetupSubmit(e) {
+    e.preventDefault();
+    
+    setupData.industry = industrySelect.value;
+    setupData.country = countrySelect.value;
+    
+    // Get product
+    if (productSelect.value === 'custom') {
+        setupData.product = customProductInput.value.trim() || 'Custom';
+    } else if (productSelect.value) {
+        setupData.product = productSelect.options[productSelect.selectedIndex].text;
+    } else {
+        setupData.product = '';
+    }
     
     // Set formula images based on language
-    if (lang === 'de') {
+    if (setupData.language === 'de') {
         formulaImgVoting.src = 'Teamkraft-Formel.jpg';
         formulaImgResult.src = 'Teamkraft-Formel.jpg';
     } else {
         formulaImgVoting.src = 'Teamkraft-Formel-1024-eng.jpg';
         formulaImgResult.src = 'Teamkraft-Formel-1024-eng.jpg';
     }
-    
-    // Update all translatable elements
-    updateLanguage();
     
     // Show voting screen
     switchScreen(votingScreen);
@@ -84,6 +187,63 @@ function updateLanguage() {
         const text = currentLanguage === 'de' ? el.dataset.de : el.dataset.en;
         el.textContent = text;
     });
+    
+    // Update select options
+    const optionElements = document.querySelectorAll('option[data-de][data-en]');
+    optionElements.forEach(el => {
+        const text = currentLanguage === 'de' ? el.dataset.de : el.dataset.en;
+        el.textContent = text;
+    });
+    
+    // Update placeholders
+    if (customProductInput) {
+        const placeholder = currentLanguage === 'de' 
+            ? customProductInput.dataset.placeholderDe 
+            : customProductInput.dataset.placeholderEn;
+        customProductInput.placeholder = placeholder;
+    }
+}
+
+// Show PIN Modal
+function showPinModal() {
+    if (getTotalVotes() === 0) return;
+    
+    pinModal.classList.add('active');
+    pinInput.value = '';
+    pinError.style.display = 'none';
+    pinInput.classList.remove('error');
+    setTimeout(() => pinInput.focus(), 100);
+    updateLanguage();
+}
+
+// Hide PIN Modal
+function hidePinModal() {
+    pinModal.classList.remove('active');
+    pinInput.value = '';
+    pinError.style.display = 'none';
+    pinInput.classList.remove('error');
+}
+
+// Check PIN
+function checkPin() {
+    const enteredPin = pinInput.value.trim();
+    
+    if (enteredPin === CORRECT_PIN) {
+        hidePinModal();
+        showResults();
+    } else {
+        // Show error
+        pinError.style.display = 'block';
+        pinInput.classList.add('error');
+        pinInput.value = '';
+        pinInput.focus();
+        
+        // Hide error after 3 seconds
+        setTimeout(() => {
+            pinError.style.display = 'none';
+            pinInput.classList.remove('error');
+        }, 3000);
+    }
 }
 
 // Handle Vote
@@ -207,7 +367,22 @@ function resetVoting() {
         '3': 0
     };
     
+    // Reset setup data
+    setupData = {
+        language: '',
+        industry: '',
+        country: '',
+        product: ''
+    };
+    
     canVote = true;
+    currentLanguage = 'de';
+    
+    // Reset form
+    setupForm.reset();
+    languageBtns.forEach(btn => btn.classList.remove('selected'));
+    customProductSection.style.display = 'none';
+    startBtn.disabled = true;
     
     // Reset displays
     totalVotesDisplay.textContent = '0';
@@ -221,8 +396,8 @@ function resetVoting() {
         btn.style.opacity = '1';
     });
     
-    // Switch to voting screen
-    switchScreen(votingScreen);
+    // Switch to language screen
+    switchScreen(languageScreen);
 }
 
 // Switch Screen
@@ -253,6 +428,11 @@ function downloadResults() {
         de: {
             title: 'Ergebnis Teamkraft',
             subtitle: 'Abstimmungsergebnis',
+            setupInfo: 'Veranstaltungsinformationen',
+            language: 'Sprache',
+            industry: 'Branche',
+            country: 'Land',
+            product: 'Produkt',
             date: 'Datum',
             time: 'Uhrzeit',
             totalVotes: 'Gesamtstimmen',
@@ -268,6 +448,11 @@ function downloadResults() {
         en: {
             title: 'Results Teampower',
             subtitle: 'Voting Results',
+            setupInfo: 'Event Information',
+            language: 'Language',
+            industry: 'Industry',
+            country: 'Country',
+            product: 'Product',
             date: 'Date',
             time: 'Time',
             totalVotes: 'Total Votes',
@@ -317,6 +502,30 @@ function downloadResults() {
     
     textContent += `${t.date}: ${dateStr}\n`;
     textContent += `${t.time}: ${timeStr}\n\n`;
+    
+    // Setup Information
+    if (setupData.industry || setupData.country || setupData.product) {
+        textContent += '-'.repeat(60) + '\n';
+        textContent += t.setupInfo + ':\n';
+        textContent += '-'.repeat(60) + '\n';
+        if (setupData.language) {
+            textContent += `${t.language}: ${setupData.language === 'de' ? 'Deutsch' : 'English'}\n`;
+        }
+        if (setupData.industry) {
+            const industryOption = industrySelect.querySelector(`option[value="${setupData.industry}"]`);
+            const industryText = industryOption ? industryOption.textContent : setupData.industry;
+            textContent += `${t.industry}: ${industryText}\n`;
+        }
+        if (setupData.country) {
+            const countryOption = countrySelect.querySelector(`option[value="${setupData.country}"]`);
+            const countryText = countryOption ? countryOption.textContent : setupData.country;
+            textContent += `${t.country}: ${countryText}\n`;
+        }
+        if (setupData.product) {
+            textContent += `${t.product}: ${setupData.product}\n`;
+        }
+        textContent += '\n';
+    }
     
     textContent += '-'.repeat(60) + '\n';
     textContent += `${t.totalVotes}: ${total}\n`;

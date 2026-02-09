@@ -13,17 +13,92 @@
     <!-- Language Selection Screen -->
     <div id="language-screen" class="screen active">
         <div class="language-container">
-            <h1 class="language-title">Sprache wählen / Choose Language</h1>
-            <div class="language-buttons">
-                <button class="language-btn" data-lang="de">
-                    <span class="flag">🇩🇪</span>
-                    <span class="lang-text">Deutsch</span>
+            <h1 class="language-title">Teamkraft Bewertung / Teampower Voting</h1>
+            
+            <form id="setup-form" class="setup-form">
+                <!-- Language Selection -->
+                <div class="form-section">
+                    <label class="form-label">Sprache / Language *</label>
+                    <div class="language-buttons">
+                        <button type="button" class="language-btn" data-lang="de">
+                            <span class="flag">🇩🇪</span>
+                            <span class="lang-text">Deutsch</span>
+                        </button>
+                        <button type="button" class="language-btn" data-lang="en">
+                            <span class="flag">🇬🇧</span>
+                            <span class="lang-text">English</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Industry Selection -->
+                <div class="form-section">
+                    <label class="form-label" data-de="Branche *" data-en="Industry *">Branche *</label>
+                    <select id="industry-select" class="form-select" required>
+                        <option value="" data-de="Bitte wählen..." data-en="Please select...">Bitte wählen...</option>
+                        <option value="automotive" data-de="Automotive" data-en="Automotive">Automotive</option>
+                        <option value="finance" data-de="Finanzwesen" data-en="Finance">Finanzwesen</option>
+                        <option value="healthcare" data-de="Gesundheitswesen" data-en="Healthcare">Gesundheitswesen</option>
+                        <option value="it" data-de="IT & Technologie" data-en="IT & Technology">IT & Technologie</option>
+                        <option value="manufacturing" data-de="Produktion" data-en="Manufacturing">Produktion</option>
+                        <option value="retail" data-de="Einzelhandel" data-en="Retail">Einzelhandel</option>
+                        <option value="education" data-de="Bildung" data-en="Education">Bildung</option>
+                        <option value="consulting" data-de="Beratung" data-en="Consulting">Beratung</option>
+                        <option value="other" data-de="Sonstige" data-en="Other">Sonstige</option>
+                    </select>
+                </div>
+
+                <!-- Country Selection -->
+                <div class="form-section">
+                    <label class="form-label" data-de="Land *" data-en="Country *">Land *</label>
+                    <select id="country-select" class="form-select" required>
+                        <option value="" data-de="Bitte wählen..." data-en="Please select...">Bitte wählen...</option>
+                        <option value="DE">Deutschland / Germany</option>
+                        <option value="AT">Österreich / Austria</option>
+                        <option value="CH">Schweiz / Switzerland</option>
+                        <option value="US">USA</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="FR">France / Frankreich</option>
+                        <option value="IT">Italy / Italien</option>
+                        <option value="ES">Spain / Spanien</option>
+                        <option value="NL">Netherlands / Niederlande</option>
+                        <option value="BE">Belgium / Belgien</option>
+                        <option value="PL">Poland / Polen</option>
+                        <option value="other" data-de="Sonstige" data-en="Other">Sonstige</option>
+                    </select>
+                </div>
+
+                <!-- Product Selection -->
+                <div class="form-section">
+                    <label class="form-label" data-de="Produkt" data-en="Product">Produkt</label>
+                    <select id="product-select" class="form-select">
+                        <option value="" data-de="Bitte wählen oder unten eingeben..." data-en="Please select or enter below...">Bitte wählen oder unten eingeben...</option>
+                        <option value="workshop" data-de="Workshop" data-en="Workshop">Workshop</option>
+                        <option value="training" data-de="Training" data-en="Training">Training</option>
+                        <option value="coaching" data-de="Coaching" data-en="Coaching">Coaching</option>
+                        <option value="seminar" data-de="Seminar" data-en="Seminar">Seminar</option>
+                        <option value="conference" data-de="Konferenz" data-en="Conference">Konferenz</option>
+                        <option value="team-building" data-de="Teambuilding" data-en="Team Building">Teambuilding</option>
+                        <option value="custom" data-de="Eigene Eingabe" data-en="Custom entry">Eigene Eingabe</option>
+                    </select>
+                </div>
+
+                <!-- Custom Product Input -->
+                <div class="form-section" id="custom-product-section" style="display: none;">
+                    <label class="form-label" data-de="Produktname eingeben" data-en="Enter product name">Produktname eingeben</label>
+                    <input type="text" id="custom-product" class="form-input" maxlength="100" 
+                           data-placeholder-de="z.B. Führungskräfte-Training" 
+                           data-placeholder-en="e.g. Leadership Training"
+                           placeholder="z.B. Führungskräfte-Training">
+                </div>
+
+                <button type="submit" class="start-btn" disabled>
+                    <span data-de="Abstimmung starten" data-en="Start voting">Abstimmung starten</span>
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
                 </button>
-                <button class="language-btn" data-lang="en">
-                    <span class="flag">🇬🇧</span>
-                    <span class="lang-text">English</span>
-                </button>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -96,6 +171,30 @@
                     </svg>
                 </button>
             </footer>
+        </div>
+    </div>
+
+    <!-- PIN Code Modal -->
+    <div id="pin-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title" data-de="Code eingeben" data-en="Enter code">Code eingeben</h2>
+            <p class="modal-description" data-de="Bitte geben Sie den Code ein, um die Ergebnisse anzuzeigen." data-en="Please enter the code to view the results.">
+                Bitte geben Sie den Code ein, um die Ergebnisse anzuzeigen.
+            </p>
+            <input type="number" id="pin-input" class="pin-input" maxlength="3" placeholder="000" autofocus>
+            <div class="pin-error" id="pin-error" style="display: none;">
+                <span data-de="Falscher Code! Bitte versuchen Sie es erneut." data-en="Wrong code! Please try again.">
+                    Falscher Code! Bitte versuchen Sie es erneut.
+                </span>
+            </div>
+            <div class="modal-actions">
+                <button id="pin-cancel-btn" class="modal-btn cancel-btn">
+                    <span data-de="Abbrechen" data-en="Cancel">Abbrechen</span>
+                </button>
+                <button id="pin-submit-btn" class="modal-btn submit-btn">
+                    <span data-de="Bestätigen" data-en="Confirm">Bestätigen</span>
+                </button>
+            </div>
         </div>
     </div>
 
